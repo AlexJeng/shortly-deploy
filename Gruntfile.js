@@ -27,6 +27,12 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      my_target: {
+        files: {
+          'public/client/build/production.min.js' : ['public/client/*.js']
+        }
+
+      }
     },
 
     jshint: {
@@ -100,7 +106,8 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('build', [
-    'concat'
+    'concat',
+    'uglify'
   ]);
 
   grunt.registerTask('upload', function(n) {
