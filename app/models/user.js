@@ -1,25 +1,34 @@
-var db = require('../config');
+var userSchema = require('../config').userSchema;
+var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
-var Promise = require('bluebird');
 
-var User = db.Model.extend({
-  tableName: 'users',
-  hasTimestamps: true,
-  initialize: function(){
-    this.on('creating', this.hashPassword);
-  },
-  comparePassword: function(attemptedPassword, callback) {
-    bcrypt.compare(attemptedPassword, this.get('password'), function(err, isMatch) {
-      callback(isMatch);
-    });
-  },
-  hashPassword: function(){
-    var cipher = Promise.promisify(bcrypt.hash);
-    return cipher(this.get('password'), null, null).bind(this)
-      .then(function(hash) {
-        this.set('password', hash);
-      });
-  }
+userSchema.method('comparePassword', function(attemptedPassword, callback) {
+  var model = this;
+  bcrypt.compare(attemptedPassword, model.get('password'), function(err, isMatch) {
+    callback(isMatch);
+  });
 });
 
-module.exports = User;
+userSchema.method('hashPassword', function(next, done) {
+  var model = this;
+  var password = model.get('password');
+  bcrypt.genSalt(10, function(err, salt) {
+    if (err) {
+      throw new Error('Error from bcryptSalt:', err.message);
+    }
+    bcrypt.hash(password, salt, null, function(err, hash) {
+      if (err) {
+        throw new Error('Error from bcryptHash:', err.message);
+      }
+      model.set('password', hash);
+      next();
+      done();
+    });
+  });
+});
+
+userSchema.pre('save', true, function(next, done) {
+  this.hashPassword(next, done);
+});
+
+exports.User = mongoose.model('User', userSchema);
