@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Promise = require('bluebird');
-mongoose.connect('mongodb://localhost/rickAlexPeter');
+mongoose.connect('mongodb://MongoLab-q:HURes0lUt4xw8fYrWe_ZjPjccyeiSV.CPpe4YsoNz3A-@ds041157.mongolab.com:41157/MongoLab-q');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
