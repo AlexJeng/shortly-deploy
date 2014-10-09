@@ -1,7 +1,7 @@
 var express = require('express');
 var partials = require('express-partials');
 var util = require('./lib/utility');
-
+var db = require('./app2/config').db;
 var handler = require('./lib/request-handler');
 
 var app = express();
@@ -27,7 +27,10 @@ app.post('/login', handler.loginUser);
 app.get('/logout', handler.logoutUser);
 
 app.get('/signup', handler.signupUserForm);
-app.post('/signup', handler.signupUser);
+app.post('/signup', function(req, res) {
+  handler.signupMongoUser(req, res);
+  // handler.signupUser(req, res);
+});
 
 app.get('/*', handler.navToLink);
 
